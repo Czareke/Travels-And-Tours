@@ -35,4 +35,4 @@ exports.CreateTour =catchAsync(async(req,res,next)=>{
 })
 
 // @desc     Update a tour
-exports.uo
+exports.updateTour
