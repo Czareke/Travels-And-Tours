@@ -35,4 +35,27 @@ exports.CreateTour =catchAsync(async(req,res,next)=>{
 })
 
 // @desc     Update a tour
-exports.updateTour
+exports.updateTour=catchAsync(async(req,res,next)=>{
+    const tour=await Tour.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
+    if(!tour){
+        return next(new AppError('No Tour Found With this ID',404))
+    }
+    res.status(200).json({
+        status:'success',
+        data:tour
+    })
+})
+
+// @desc     Delete a tour
+
+exports.deleteTour=catchAsync(async(req,res,next)=>{
+    const tour=await Tour.findByIdAndDelete(req.params.id)
+    if(!tour){
+        return next(new AppError('No Tour Found With this ID',404))
+    }
+    res.status(204).json({
+        status:'success',
+        data:null,
+        message:'Tour deleted successfully'
+    })
+})
