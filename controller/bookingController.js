@@ -4,20 +4,25 @@ import AppError from '../utils/appError'
 import Tour from '../Models/TourModel'
 
 // @   Create a new booking
-exports.createBooking = catchAsync(async(req,res,next)=>{
-    const tour = await Tour.findById(req.params.tourId)
-    if(!tour){
-        return next(new AppError('No tour found with that ID',404))
+exports.createBooking = catchAsync(async (req, res, next) => {
+    const tour = await Tour.findById(req.params.tourId);
+    if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
     }
-    const booking = new Booking(req.body)
-    booking.tour = tour
-    booking.user = req.user._id
-    await booking.save()
+    // Create a new booking
+    const booking = new Booking({
+    ...req.body,
+    tour: tour._id,
+    user: req.user._id    
+});
+    await booking.save();
     res.status(201).json({
-        status:'success',
-        data:booking
-    })
-})
+    status: 'success',
+    data: {
+        booking
+    }
+    });
+});
 exports.getBookings = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 10;

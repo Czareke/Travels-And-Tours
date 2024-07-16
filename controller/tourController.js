@@ -19,7 +19,7 @@ exports.getOneTour=catchAsync(async(req,res,next)=>{
     if(!tours){
         return next(new AppError('No Tour Found With this ID',404))
     }
-    res.status(200).json({
+        res.status(200).json({
         status:'success',
         data:tours
     })
@@ -27,7 +27,16 @@ exports.getOneTour=catchAsync(async(req,res,next)=>{
 
 // @desc     Create a new tour
 exports.CreateTour =catchAsync(async(req,res,next)=>{
-    const newTour=await Tour.create(req.body)
+    const newTour=await Tour.create({
+        tourName:req.params.tourName,
+        description:req.body.description,
+        destination:req.body.destination,
+        price:req.body.price,
+        duration:req.body.duration,
+        maxGroupSize:req.body.maxGroupSize,
+        difficulty:req.body.difficulty,
+        ratingsAverage:req.body.ratingsAverage,
+    })
     res.status(201).json({
         status:'success',
         data:newTour

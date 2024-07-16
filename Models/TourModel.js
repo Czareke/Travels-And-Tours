@@ -20,14 +20,10 @@ const tourSchema = new mongoose.Schema({
         type: Number,
         required: [true,'Enter price'],
 },
-    startDate: {
-        type: Date,
-        required: [true,'Enter start date'],
-},
-    endDate: {
-        type: Date,
-        required: [true,'Enter end date'],
-},
+    duration:{
+        type: Number,
+        required: [true,'Enter duration'],
+    },
     maxGroupSize: {
     type: Number,
     required: [true,'Enter max group size'],
