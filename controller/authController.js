@@ -93,3 +93,35 @@ exports.resetPassword=catchAsync(async(req,res,next)=>{
         data:user
     })
 })
+
+// @desc protect
+exports.protect=catchAsync(async(req,res,next)=>{
+    let token;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+        token=req.headers.authorization.split(' ')[1]
+    }
+    if(!token){
+        return next(new AppError('You are not logged in. Please login to access this route',401))
+    }
+    const decoded=await promisify(jwt.verify)(token,process.env.JWT_SECRET)
+    console.log(decoded)
+    const user=await User.findById(decoded.id)
+    if(!user){
+        return next(new AppError('User no longer exists',404))
+    }
+    if(user.changePasswordDate && Date.now() - user.changePasswordDate < 1000 * 60 * 60 * 24){
+        return next(new AppError('User has changed password recently. Please change password again',401))
+    }
+    req.user=user
+    next()
+})
+
+// @desc restrict to admin
+exports.restrictTo=(...roles)=>{
+    return (req,res,next)=>{
+        if(!roles.includes(req.user.role)){
+            return next(new AppError('Unauthorized to access this route',403))
+        }
+        next()
+    }
+}
