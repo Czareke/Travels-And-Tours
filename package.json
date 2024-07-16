@@ -1,0 +1,22 @@
+{
+  "name": "travels-and-tours",
+  "version": "1.0.0",
+  "description": "Site for Users to book Tours and travels",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node app.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Kevin Oganyi",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "validators": "^0.3.1"
+  }
+}
