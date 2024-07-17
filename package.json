@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.0",
     "promisify": "^0.0.3",
+    "stripe": "^16.2.0",
     "validators": "^0.3.1"
   }
 }
