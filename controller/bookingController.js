@@ -1,4 +1,4 @@
-import Booking from '../Models/bookingModel.js';
+import Booking from '../Models/BookingModel.js';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/appError';
 import Tour from '../Models/tourModel';
