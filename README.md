@@ -5,7 +5,7 @@ Travels and Tours API
 This is a Node.js API for managing tours, user bookings, and handling payments using Stripe. 
 Features
 
-- User Authentication (signup, login)
+- User Authentication (signUp, login)
 - CRUD operations for Tours
 - Booking Tours
 - Payment Processing with Stripe
@@ -30,7 +30,7 @@ Installation
 
 1. Clone the repository:
 bash
-git clone https://github.com/yourusername/travels-and-tours-api.git
+git clone 
 cd travels-and-tours-api
 
 
@@ -50,8 +50,6 @@ JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=90d
 JWT_COOKIE_EXPIRES_IN=90
 STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
 
 Running the API

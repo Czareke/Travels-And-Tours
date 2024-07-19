@@ -4,12 +4,13 @@ import Tour from '../Models/tourModel';
 
 // @desc     Get all tours
 exports.getAllTours = catchAsync(async (req, res, next) => {
-  const tours = await Tour.find().sort({ price: 1 });
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: tours,
-  });
+  // const tours = await Tour.find().sort({ price: 1 });
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: tours.length,
+  //   data: tours,
+  // });
+  
 });
 
 // @desc     Get a single tour
