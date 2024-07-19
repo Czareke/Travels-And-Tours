@@ -1,7 +1,7 @@
 import Booking from '../Models/BookingModel.js';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/appError';
-import Tour from '../Models/tourModel';
+import Tour from '../Models/TourModel';
 
 // @   Create a new booking
 exports.createBooking = catchAsync(async (req, res, next) => {
@@ -99,3 +99,47 @@ exports.deleteBooking = catchAsync(async (req, res, next) => {
     message: 'Booking deleted successfully',
   });
 });
+exports.getBookingHistory=catchAsync(async(req,res,next)=>{
+  const bookings=await Booking.find({user:req.user.id}).populate('tour')
+  if(!bookings.length){
+    return next(new AppError('No bookings found for this user',404))
+  }
+  res.status(200).json({
+    status:'success',
+    data:bookings,
+    message:'Booking history fetched successfully'
+  })
+})
+exports.cancelBooking=catchAsync(async(req,res,next)=>{
+  const booking=await Booking.findById(req.params.bookingId)
+  if(!booking){
+    return next(new AppError('No booking found with that ID',404))
+  }
+  if(booking.user.toString()!==req.user.id){
+    return next(new AppError('You are not authorized to cancel this booking',403))
+  }
+  booking.status='Cancelled'
+  await booking.save()
+  res.status(200).json({
+    status:'success',
+    data:booking,
+    message:'Booking cancelled successfully'
+  })
+})
+exports.updateBookingStatus=catchAsync(async(req,res,next)=>{
+  const {status}=req.body
+  if(![pending,confirmed,cancelled].includes(status)){
+    return next(new AppError('Invalid booking status',400))
+  }
+  const booking=await Booking.findById(req.params.bookingId)
+  if(!booking){
+    return next(new AppError('No booking found with that ID',404))
+  }
+  booking.status=status
+  await booking.save()
+  res.status(200).json({
+    status:'success',
+    data:booking,
+    message:`Booking status updated to ${status}`
+  })
+})
