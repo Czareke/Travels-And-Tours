@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node app.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "author": "Kevin Oganyi",
   "license": "ISC",

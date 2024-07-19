@@ -46,61 +46,61 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 // @desc forgot password
+
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(new AppError('No user found with that email', 404));
   }
-  const resetToken = user.getResetPasswordToken();
+
+  const otp = user.createPasswordResetOTP();
+  await user.save({ validateBeforeSave: false });
+
+  const message = `You are receiving this email because you (or someone else) have requested a password reset. \n\n Your OTP for password reset is: ${otp} \n\n If you did not request a password reset, please ignore this email and no changes will be made.`;
+
   try {
-    await user.save({ validateBeforeSave: false });
-    const resetURL = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
-    const message = `You are receiving this email because you (or someone else) have requested a password reset. \n\n Please click on the following link to reset your password: \n\n${resetURL}\n\nIf you did not request a password reset, please ignore this email and no changes will be made.`;
-    await sendMail({
-      to: user.email,
-      subject: 'Password Reset Link',
-      text: message,
+    await sendEmail({
+      email: user.email,
+      subject: 'Your password reset OTP (valid for 10 minutes)',
+      message
     });
+
     res.status(200).json({
       status: 'success',
-      message: 'Reset password email sent',
+      message: 'OTP sent to email!'
     });
   } catch (err) {
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
+    user.passwordResetOTP = undefined;
+    user.passwordResetOTPExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    return next(new AppError('Failed to send email. Please try again', 500));
+
+    return next(new AppError('There was an error sending the email. Try again later!', 500));
   }
 });
 
 // @desc reset password
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
+  const hashedOTP = crypto.createHash('sha256').update(req.body.otp).digest('hex');
+
   const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
+    passwordResetOTP: hashedOTP,
+    passwordResetOTPExpires: { $gt: Date.now() }
   });
+
   if (!user) {
-    return next(new AppError('Token is invalid or expired', 400));
+    return next(new AppError('OTP is invalid or has expired', 400));
   }
+
   user.password = req.body.password;
-  user.confirmPassword = req.body.confirmPassword;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
+  user.passwordResetOTP = undefined;
+  user.passwordResetOTPExpires = undefined;
   await user.save();
-  const token = signToken(user._id);
+
   res.status(200).json({
     status: 'success',
-    token,
-    data: user,
+    message: 'Password has been reset!'
   });
 });
-
 // @desc protect
 exports.protect = catchAsync(async (req, res, next) => {
   let token;

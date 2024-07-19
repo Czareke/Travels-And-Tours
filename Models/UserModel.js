@@ -40,6 +40,8 @@ const UserSchema=new mongoose.Schema({
         default: 'basic'
     },
     passwordChangedAt: Date,
+    passwordResetOTP: String,
+    passwordResetOTPExpires: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
 })
@@ -80,25 +82,11 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     // Return false if no passwordChangedAt
     return false;
 };
-userSchema.methods.createPasswordResetToken = function () {
-    // Generate a random 32-byte hex string as reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    // Hash the reset token for secure storage
-    this.passwordResetToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-    // Log original and hashed tokens for debugging (optional)
-    console.log({ resetToken }, this.passwordResetToken);
-    // Set token expiration time to 10 minutes from now
-    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-    // Return the original (non-hashed) reset token
-    return resetToken;
-    userSchema.pre(/^/, function (Next) {
-      // print current query
-    this.find({ active: { $ne: false } });
-    next();
-    });
-};
+userSchema.methods.createPasswordResetOTP = function() {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
+    this.passwordResetOTP = crypto.createHash('sha256').update(otp).digest('hex');
+    this.passwordResetOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    return otp;
+}; 
 const User=mongoose.model('User',userSchema)
 module.exports = User
