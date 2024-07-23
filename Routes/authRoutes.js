@@ -8,4 +8,8 @@ router.post('/login',authController.login)
 router.post('/forgotPassword',authController.forgotPassword)
 router.patch('/resetPassword/:token',authController.resetPassword)
 router.use(authController.protect)
-router.get('/')
+router.patch('/updateMyPassword',authController.updatePassword)
+router.post('/updateMe',authController.updateMe)
+router.delete('/deleteMe',authController.deleteMe)
+
+module.exports =router
