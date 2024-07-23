@@ -4,26 +4,26 @@ import AppError from '../utils/appError';
 import Tour from '../Models/TourModel';
 import notification from './notificationController.js'
 
-// @   Create a new booking
-exports.createBooking = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.tourId);
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  // Create a new booking
-  const booking = new Booking({
-    ...req.body,
-    tour: tour._id,
-    user: req.user._id,
-  });
-  await booking.save();
-  res.status(201).json({
-    status: 'success',
-    data: {
-      booking,
-    },
-  });
-});
+// // @   Create a new booking
+// exports.createBooking = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findById(req.params.tourId);
+//   if (!tour) {
+//     return next(new AppError('No tour found with that ID', 404));
+//   }
+//   // Create a new booking
+//   const booking = new Booking({
+//     ...req.body,
+//     tour: tour._id,
+//     user: req.user._id,
+//   });
+//   await booking.save();
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       booking,
+//     },
+//   });
+// });
 exports.getBookings = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 10;
@@ -90,17 +90,17 @@ exports.updateBookings = catchAsync(async (req, res, next) => {
     data: booking,
   });
 });
-exports.deleteBooking = catchAsync(async (req, res, next) => {
-  const booking = await Booking.findByIdAndDelete(req.params.id);
-  if (!booking) {
-    return next(new AppError('No booking found with that ID', 404));
-  }
-  res.status(204).json({
-    status: 'success',
-    data: null,
-    message: 'Booking deleted successfully',
-  });
-});
+// exports.deleteBooking = catchAsync(async (req, res, next) => {
+//   const booking = await Booking.findByIdAndDelete(req.params.id);
+//   if (!booking) {
+//     return next(new AppError('No booking found with that ID', 404));
+//   }
+//   res.status(204).json({
+//     status: 'success',
+//     data: null,
+//     message: 'Booking deleted successfully',
+//   });
+// });
 exports.getBookingHistory=catchAsync(async(req,res,next)=>{
   const bookings=await Booking.find({user:req.user.id}).populate('tour')
   if(!bookings.length){
