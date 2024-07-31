@@ -1,8 +1,8 @@
-import Booking from '../Models/BookingModel.js';
-import catchAsync from '../utils/catchAsync';
-import AppError from '../utils/appError';
-import Tour from '../Models/TourModel';
-import notification from './notificationController.js'
+const Booking = require('../Models/BookingModel');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+const Tour = require('../Models/TourModel');
+const notification = require('./notificationController');
 
 // // @   Create a new booking
 // exports.createBooking = catchAsync(async (req, res, next) => {

@@ -1,6 +1,7 @@
 const express=require('express')
-import bookingController from '../controller/bookingController'
-import authController from '../controller/authController'
+const bookingController = require('../controller/bookingController');
+const authController = require('../controller/authController');
+
 
 const router=express.Router()
 router.use(authController.protect)
@@ -20,4 +21,4 @@ router
 router.route('/booking/:id')
 .patch(bookingController.updateBookingStatus)
 
-module.exports=router
+module.exports=router;

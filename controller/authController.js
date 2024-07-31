@@ -1,9 +1,12 @@
-import User from '../Models/userModel';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { promisify } from 'util';
-import sendMail from '../utils/email';
-import catchAsync from '../utils/catchAsync';
+const User = require('../Models/userModel.js');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const util = require('util');
+const sendMail = require('../utils/email');
+const catchAsync = require('../utils/catchAsync');
+const AppError =require('../utils/appError');
+const { promisify } = require('util');
+
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -103,41 +106,48 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 // @desc protect
 exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check if it's there
   let token;
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization.startsWith("Bearer")
   ) {
-    token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(" ")[1];
   }
+  console.log(token);
+
   if (!token) {
     return next(
-      new AppError(
-        'You are not logged in. Please login to access this route',
-        401
-      )
+      new AppError("You are not logged in! Please log in to get access", 401)
     );
   }
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    console.log(decoded);
-    const user = await User.findById(decoded.id);
-    if (!user) {
-    return next(new AppError('User no longer exists', 404));
-    }
-    if (
-    user.changePasswordDate &&
-    Date.now() - user.changePasswordDate < 1000 * 60 * 60 * 24
-) {
+
+  // 2) Verification Token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
+  
+  // 3) Check if user still exists
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
     return next(
-        new AppError(
-        'User has changed password recently. Please change password again',
-        401
-        )
+      new AppError("The user belonging to this token does not exist.", 401)
     );
-    }
-    req.user = user;
-    next();
+  }
+
+  // 4) Check if the user changed password after token was issued
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError("User recently changed password! Please login again.", 401)
+    );
+  }
+
+  // Grant access to protected route
+  req.user = freshUser;
+  next();
 });
+
+
+
 
 // @desc restrict to admin
 exports.restrictTo = (...roles) => {

@@ -1,17 +1,27 @@
-const express=require('express')
-import userController from '../controller/userController'
-import authController from '../controller/authController'
+const express = require('express');
+const userController = require('../controller/userController');
+const authController = require('../controller/authController');
 
-const router=express.Router()
-router.
-route('/user')
-.get(userController.getAllUsers)
-router.use(authController.protect)
-router.use(authController.restrictTo("admin"));
+const router = express.Router();
+
+// Route to get all users (for admin)
 router
-.route('/user/:id')
-.get(userController.getOneUser)
-.patch(userController.updateMe)
-.delete(userController.deleteMe)
+    .route('/user')
+    .get(authController.protect, authController.restrictTo('admin'), userController.getAllUsers);
 
-module.exports=router
+// Route to get and update the user profile
+router
+    .route('/me')
+    .get(authController.protect, userController.getUserProfile);
+
+// Middleware to protect all routes below
+router.use(authController.protect);
+
+// Routes to get, update, and delete a specific user by ID (for admin)
+router
+    .route('/user/:id')
+    .get(authController.restrictTo('admin'), userController.getOneUser)
+    .patch(authController.restrictTo('admin','user'), userController.updateMe)
+    .delete(authController.restrictTo('admin','user'), userController.deleteMe);
+
+module.exports = router;

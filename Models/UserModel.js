@@ -1,7 +1,8 @@
-import mongoose from "mongoose";
-import validator from 'validators'
-import bcrypt from "bcrypt"
-const UserSchema=new mongoose.Schema({
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcrypt');
+
+const userSchema=new mongoose.Schema({
     email:{
         type:String,
         trim:true,
@@ -46,42 +47,39 @@ const UserSchema=new mongoose.Schema({
     passwordResetExpires: Date,
 })
 
-userSchema.pre('save', async function (next) {
-    // Only hash password if it's modified
-    if (!this.isModified('password')) return next()
-    // Hash password with a cost factor of 12 (higher = more secure, but slower)
+// runs before the doc is saved(pre)if you want it to run after we use post(middleware for signup in authController)
+userSchema.pre("save", async function (next) {
+    // Run only when password is modified
+    if (!this.isModified("password")) return next();
+  
+    // hash password with cost of 12
     this.password = await bcrypt.hash(this.password, 12);
-    // Remove confirmPassword field (optional security measure)
+  
+    // Deleted the passwordConfirm field
     this.confirmPassword = undefined;
+  
     next();
-});
-    userSchema.pre('save', function (next) {
-    // Only update timestamp if password is modified or creating new user
-    if (!this.isModified('password') || this.isNew) return next();
-    // Set passwordChangedAt to current time minus 1 second (ensures JWT is issued before update)
+  });
+  userSchema.pre("save", function (next) {
+    if (!this.isModified("password") || this.isNew) return next();
     this.passwordChangedAt = Date.now() - 1000;
     next();
-});
-userSchema.methods.correctPassword = async function (
-    candidatePassword,
-    userPassword) {
-    // Compare provided password with hashed password using bcrypt
-    return await bcrypt.compare(candidatePassword, userPassword);
-};
-userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  });
+  
+userSchema.methods.comparePassword = async function(candidatePassword, userPassword) {
+    return bcrypt.compare(candidatePassword, userPassword);
+  };
+  
+  userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
-        const changedTimestamp = parseInt(
+      const changedTimestamp = parseInt(
         this.passwordChangedAt.getTime() / 1000,
         10
-);
-      // Log timestamps for debugging
-        console.log(this.passwordChangedAt, JWTTimestamp);
-      // Check if JWT timestamp is before password change
-        return JWTTimestamp < changedTimestamp;
+      );
+      console.log(this.passwordChangedAt, JWTTimestamp);
+      return JWTTimestamp < changedTimestamp;
     }
-    // Return false if no passwordChangedAt
-    return false;
-};
+  };
 userSchema.methods.createPasswordResetOTP = function() {
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
     this.passwordResetOTP = crypto.createHash('sha256').update(otp).digest('hex');

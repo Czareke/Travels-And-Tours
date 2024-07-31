@@ -1,8 +1,9 @@
-import User from '../Models/userModel';
-import catchAsync from '../utils/catchAsync';
-import Booking from '../Models/BookingModel';
-import Tour from '../Models/TourModel';
-import AppError from '../utils/appError';
+const User = require('../Models/userModel');
+const catchAsync = require('../utils/catchAsync');
+const Booking = require('../Models/BookingModel');
+const Tour = require('../Models/TourModel');
+const AppError = require('../utils/appError');
+
 //@ desc confirmPayment
 exports.confirmPayment = catchAsync(async (req, res, next) => {
     const { tourId } = req.body;

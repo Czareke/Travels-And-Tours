@@ -1,6 +1,6 @@
-import catchAsync from '../utils/catchAsync';
-import AppError from '../utils/appError';
-import Tour from '../Models/TourModel';
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+const Tour = require('../Models/TourModel');
 
 // @desc     Get all tours
 exports.getAllTours = catchAsync(async (req, res, next) => {

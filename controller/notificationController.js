@@ -1,4 +1,5 @@
-import sendMail from '../utils/email'
+const sendMail = require('../utils/email');
+
 
 
 exports.sendBookingConfirmation=async(user,booking)=>{

@@ -1,8 +1,9 @@
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import app from './app.js';
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const app = require('./app');
 
 dotenv.config();
+
 const DB=process.env.MONGO_URI
 mongoose.connect(DB).then(()=>{
     console.log('MongoDB connection established')

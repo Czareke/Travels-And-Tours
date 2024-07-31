@@ -1,6 +1,7 @@
 const express = require('express');
-import paymentController from  '../controller/paymentController'
-import authController from '../controller/authController'
+const paymentController = require('../controller/paymentController');
+const authController = require('../controller/authController');
+
 
 const router = express.Router();
 
@@ -11,4 +12,4 @@ router.post('/confirm-payment', paymentController.confirmPayment);
 
 // Admin-specific routes for managing payments (if any)
 router.use(authController.restrictTo('admin'));
-module.exports = router;
+module.exports= router;
