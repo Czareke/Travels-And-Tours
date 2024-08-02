@@ -7,7 +7,7 @@ const router=express.Router()
 router.post('/register',authController.createUser)
 router.post('/login',authController.login)
 router.post('/forgotPassword',authController.forgotPassword)
-router.patch('/resetPassword/:token',authController.resetPassword)
+router.patch('/resetPassword', authController.resetPassword);
 router.use(authController.protect)//authentication middleware
 router.patch('/updateMyPassword',authController.updatePassword)
 router.post('/updateMe',authController.updateMe)

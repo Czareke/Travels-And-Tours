@@ -7,7 +7,7 @@ const router = express.Router()
 router
 .route('/tours')
 .get(tourController.getAllTours)
-.post(authController.protect,router.use(authController.restrictTo("admin")),tourController.CreateTour)
+.post(authController.protect,authController.restrictTo('admin'),tourController.createTour)
 router
 .route('/tours/:id')
 .get(tourController.getOneTour)

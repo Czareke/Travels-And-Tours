@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
 
 const userSchema=new mongoose.Schema({
     email:{
@@ -43,8 +45,6 @@ const userSchema=new mongoose.Schema({
     passwordChangedAt: Date,
     passwordResetOTP: String,
     passwordResetOTPExpires: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
 })
 
 // runs before the doc is saved(pre)if you want it to run after we use post(middleware for signup in authController)

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travels & Tours - Home</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#tours">Tours</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#" id="signupButton">Signup</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section id="home">
+        <div class="hero">
+            <h1>Welcome to Travels & Tours</h1>
+            <p>Explore the world with us. Discover amazing destinations and unforgettable experiences.</p>
+            <a href="#tours" class="btn">Discover Tours</a>
+        </div>
+    </section>
+    
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Signup</h2>
+            <form id="signupForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <button type="submit">Signup</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Landing Page -->
+    <section id="landingPage" style="display:none;">
+        <div class="landing-content">
+            <h1>Thank you for signing up!</h1>
+            <p>Welcome to Travels & Tours. Start exploring now.</p>
+            <a href="#home" class="btn">Go to Home</a>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

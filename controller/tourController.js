@@ -1,7 +1,9 @@
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Tour = require('../Models/TourModel');
-
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const fs = require("fs");
 // @desc     Get all tours
 exports.getAllTours = catchAsync(async (req, res, next) => {
   const { search, destination, difficulty, sort } = req.query;
@@ -79,22 +81,49 @@ exports.getOneTour = catchAsync(async (req, res, next) => {
 });
 
 // @desc     Create a new tour
-exports.CreateTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create({
-    tourName: req.params.tourName,
-    description: req.body.description,
-    destination: req.body.destination,
-    price: req.body.price,
-    duration: req.body.duration,
-    maxGroupSize: req.body.maxGroupSize,
-    difficulty: req.body.difficulty,
-    ratingsAverage: req.body.ratingsAverage,
-  });
-  res.status(201).json({
-    status: 'success',
-    data: newTour,
-  });
-});
+exports.createTour = async (req, res, next) => {
+  try {
+    const { tourName, description, destination, price, duration, maxGroupSize, difficulty, ratingsAverage,createdBy  } = req.body;
+
+    if (!req.files || !req.files.imageCover) {
+      return next(new AppError("A tour must have a cover image", 400));
+    }
+
+    const image = req.files.imageCover;
+    if (!image.mimetype.startsWith("image")) {
+      return next(new AppError("Please upload an image", 400));
+    }
+
+    const result = await cloudinary.uploader.upload(image.tempFilePath, {
+      use_filename: true,
+      folder: "tours",
+    });
+
+    fs.unlinkSync(image.tempFilePath);
+
+    const newTour = await Tour.create({
+      tourName,
+      description,
+      destination,
+      price,
+      duration,
+      maxGroupSize,
+      difficulty,
+      ratingsAverage,
+      imageCover: result.secure_url,
+      createdBy
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // @desc     Update a tour
 exports.updateTour = catchAsync(async (req, res, next) => {

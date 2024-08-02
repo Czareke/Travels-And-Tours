@@ -2,7 +2,7 @@ const User = require('../Models/userModel.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const util = require('util');
-const sendMail = require('../utils/email');
+const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
 const AppError =require('../utils/appError');
 const { promisify } = require('util');
@@ -50,58 +50,59 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // @desc forgot password
 
+
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(new AppError('No user found with that email', 404));
   }
 
-  const otp = user.createPasswordResetOTP();
+  // Generate OTP
+  const otp = crypto.randomBytes(3).toString('hex'); // Generates a 6-digit hex string
+
+  // Set OTP and its expiration time
+  user.passwordResetOTP = otp;
+  user.passwordResetOTPExpires = Date.now() + 15 * 60 * 1000; // OTP valid for 15 minutes
+
   await user.save({ validateBeforeSave: false });
 
-  const message = `You are receiving this email because you (or someone else) have requested a password reset. \n\n Your OTP for password reset is: ${otp} \n\n If you did not request a password reset, please ignore this email and no changes will be made.`;
+  // Send OTP to the user
+  const message = `Your OTP for password reset is: ${otp}. It is valid for 15 minutes.`;
+  await sendEmail({
+    email: user.email, // Ensure this is correctly passed
+    subject: 'Password Reset OTP',
+    message: message,
+  });
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Your password reset OTP (valid for 10 minutes)',
-      message
-    });
-
-    res.status(200).json({
-      status: 'success',
-      message: 'OTP sent to email!'
-    });
-  } catch (err) {
-    user.passwordResetOTP = undefined;
-    user.passwordResetOTPExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    return next(new AppError('There was an error sending the email. Try again later!', 500));
-  }
+  res.status(200).json({
+    status: 'success',
+    message: 'OTP sent to email',
+  });
 });
 
 // @desc reset password
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  const hashedOTP = crypto.createHash('sha256').update(req.body.otp).digest('hex');
-
+  const { otp, newPassword } = req.body;
   const user = await User.findOne({
-    passwordResetOTP: hashedOTP,
-    passwordResetOTPExpires: { $gt: Date.now() }
+    passwordResetOTP: otp,
+    passwordResetOTPExpires: { $gt: Date.now() },
   });
 
   if (!user) {
-    return next(new AppError('OTP is invalid or has expired', 400));
+    return next(new AppError('Invalid or expired OTP', 400));
   }
 
-  user.password = req.body.password;
+ // Update the user's password and confirmPassword for validation purposes
+  user.password = newPassword;
+  user.confirmPassword = newPassword;
+
+ // Clear the OTP and its expiration time from the user's record
   user.passwordResetOTP = undefined;
   user.passwordResetOTPExpires = undefined;
-  await user.save();
 
   res.status(200).json({
     status: 'success',
-    message: 'Password has been reset!'
+    message: 'Password updated successfully',
   });
 });
 // @desc protect
@@ -192,7 +193,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   // 2)filter for unwanted field names that are not allowed to be updated
-  const filteredBody = filterObj(req.body, "firstName", "lastName", "email");
+  const filteredBody = filterObj(req.body, "email");
   // 3)update user doc
   const updateUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
